@@ -1,33 +1,27 @@
 const { GraphQLServer } = require("graphql-yoga");
-const { prisma } = require('./src/generated/prisma-client')
+const { prisma } = require("./src/generated/prisma-client");
+
+const Query = require('./src/resolvers/Query')
+const Mutation = require('./src/resolvers/Mutation')
+const User = require('./src/resolvers/User')
+const Link = require('./src/resolvers/Link')
 
 const resolvers = {
-  Query: {
-    info: () => `This is the API of a hackernews clone.`,
-    feed: (root, args, context, info) => {
-      return context.prisma.links()
-    },
-    link: (parent, { id }, context) => { 
-    }
-  },
-  Mutation: {
-    add: (parent, args, context) => {
-      return context.prisma.createLink({
-        url: args.url,
-        description: args.description,
-      })
-    },
-    update: (parent, args) => { 
-    },
-    delete: (parent, { id }) => {
-    }
-  }
+  Query,
+  Mutation,
+  User,
+  Link
 };
 
 const server = new GraphQLServer({
   typeDefs: "./src/schema.graphql",
   resolvers,
-  context: { prisma },
+  context: request => {
+    return {
+      ...request,
+      prisma
+    };
+  }
 });
 server.start(({ port }) =>
   console.log(`server is running on http://localhost:${port}`)
